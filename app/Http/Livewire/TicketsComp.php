@@ -26,26 +26,15 @@ class TicketsComp extends Component
     public $filtro_status = "ABIERTO";
     public $search = "";
     public $usuarios = [];
-    public $prioridad = "Media";
     public $categorias = [];
-    public $tema = "";
-    public $descripcion = "";
-    public $quien_reporta = "";
-    public $telefono = "";
-    public $edificios = [];
-    public $edificio = "";
-    public $departamentos = [];
-    public $departamento = "";
-    public $ip = "";
-    public $usuario_red = "";
-    public $asignado = "";
-    public $categoria = "";
-    public $autoriza = "";
-    public $attachment;
+    public $modalshow= false;
+
     public $readyToLoad = false; //propiedad usada para mostrar Loading... antes de renderizar tabla de tickets; se establece por default en false
 
     protected $paginationTheme = 'bootstrap'; //para usar la paginacion de livewire con bootstrap 
-
+    protected $listeners = [
+        'render'
+    ];
 
     public function updatingSearch()
     {
@@ -202,37 +191,8 @@ class TicketsComp extends Component
                  }
             }
 
-        //Limpiamos y mandamos alerta de registro guardado
-        $this->clear();
         $this->dispatchBrowserEvent('alerta', ['msg' => 'Registro guardado!', 'type' => 'success']);
         $this->dispatchBrowserEvent('focusTema');
     }
 
-    public function clear()
-    {
-
-        $this->filtro_status = "ABIERTO";
-        $this->search = "";
-        $this->usuarios = [];
-        $this->prioridad = "Media";
-        $this->categorias = [];
-
-        $this->tema = "";
-        $this->descripcion = "";
-        $this->quien_reporta = "";
-        $this->telefono = "";
-        $this->edificio = "";
-        $this->departamento = "";
-        $this->ip = "";
-        $this->usuario_red = "";
-        $this->asignado = "";
-        $this->categoria = "";
-        $this->autoriza = "";
-    }
-
-    public function goEdit($id)
-    {
-
-        return redirect('tickets/editar/' . $id);
-    }
 }

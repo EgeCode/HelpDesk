@@ -5,6 +5,16 @@ use Carbon\Carbon; ?>
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{route('tickets')}}">Tickets</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Ticket #{{ $ticketEdit->id }}</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
                 @if (Session::has('success'))
                 <div class="alert alert-success text-center" role="alert">
                     <strong>Listo!</strong> {{Session::get('success')}} <strong><u>{{Session::get('msg')}}</u></strong>
@@ -46,6 +56,13 @@ use Carbon\Carbon; ?>
                                 <hr>
                                 @else
                                 <div class="small" style=" white-space: pre-wrap;">{{$item->notas}}</div>
+                                @if($item->print == 1)
+                                <span class="float-right">
+                                    <a href="{{route('ticketDocument', $item->id)}}" title="Imprimir orden de servicio" target="_blank"><i style="font-size: 18px;" class="fa fa-print text-primary cursor-pointer;"></i></a>
+                                </span>
+                                <br>
+                                @endif
+
                                 <hr>
                                 @endif
 
@@ -84,12 +101,12 @@ use Carbon\Carbon; ?>
                                         </button>
                                         <div class="dropdown-menu">
                                             @if($status != 'Abierto')
-                                            <a class="dropdown-item" href="#" wire:click.prevent ="saveStatus('Abierto')">Abrir ticket</a>
+                                            <a class="dropdown-item" href="#" wire:click.prevent="saveStatus('Abierto')">Abrir ticket</a>
                                             @else
-                                            <a class="dropdown-item" href="#" wire:click.prevent ="saveStatus('Cerrado')">Cerrar ticket</a>    
+                                            <a class="dropdown-item" href="#" wire:click.prevent="saveStatus('Cerrado')">Cerrar ticket</a>
                                             @endif
-                                            <a class="dropdown-item" href="#" wire:click.prevent ="saveStatus('Pendiente')">Pendiente</a>
-                                            <a class="dropdown-item" href="#" wire:click.prevent ="saveStatus('Cancelado')">Cancelar</a>
+                                            <a class="dropdown-item" href="#" wire:click.prevent="saveStatus('Pendiente')">Pendiente</a>
+                                            <a class="dropdown-item" href="#" wire:click.prevent="saveStatus('Cancelado')">Cancelar</a>
                                         </div>
                                     </div>
                                 </span>
@@ -149,7 +166,7 @@ use Carbon\Carbon; ?>
 
             </div>
             <div class="col-lg-4">
-                
+
                 {{-- Formulario para editar los tickets --}}
                 <div class="card mt-2" style="max-height: 80vh;">
                     <div class="card-header bg-secondary text-white">
@@ -190,8 +207,25 @@ use Carbon\Carbon; ?>
                         </div>
 
                         <div class="d-flex flex-column">
+                            <label for="edificio">Edificio</label>
+                            <select class="form-control" name="edificio" id="edificio" wire:model="edificio">
+                                <option value="">---Selecciona una opción---</option>
+                                @foreach ($edificios as $item)
+                                <option>{{$item->nombre}}</option>
+                                @endforeach
+                            </select>
+                            <!-- <input type="text" name="edificio" id="edificio" wire:model="edificio" class="form-control"> -->
+                        </div>
+
+                        <div class="d-flex flex-column">
                             <label for="departamento">Departamento</label>
-                            <input type="text" name="departamento" id="departamento" wire:model="departamento" class="form-control">
+                            <select class="form-control" name="departamento" id="departamento" wire:model="departamento">
+                                <option value="">---Selecciona una opción---</option>
+                                @foreach ($departamentos as $item)
+                                <option>{{$item->nombre}}</option>
+                                @endforeach
+                            </select>
+                            <!-- <input type="text" name="departamento" id="departamento" wire:model="departamento" class="form-control"> -->
                             @error('departamento')
                             <small class="text-danger">{{ $message }}</small>
                             @enderror
@@ -209,7 +243,13 @@ use Carbon\Carbon; ?>
                         </div>
                         <div class="d-flex flex-column">
                             <label for="edificio">Edificio</label>
-                            <input type="text" name="edificio" id="edificio" wire:model="edificio" class="form-control">
+                            <select class="form-control" name="edificio" id="edificio" wire:model="edificio">
+                                <option value="">---Selecciona una opción---</option>
+                                @foreach ($edificios as $item)
+                                <option>{{$item->nombre}}</option>
+                                @endforeach
+                            </select>
+                            <!-- <input type="text" name="edificio" id="edificio" wire:model="edificio" class="form-control"> -->
                         </div>
 
 
@@ -251,23 +291,29 @@ use Carbon\Carbon; ?>
                             </select>
                         </div>
 
+                        <div>
+                            <label for="comentarios_impirmir">Comentarios a imprimir </label>
+                            <textarea name="comentrios_imprimir" id="comentrios_imprimir" wire:model="comentarios_print" rows="5" class="form-control"></textarea>
+                        </div>
+
 
 
                     </div>
                     <div class="card-footer">
                         <button class="btn btn-primary mt-2" wire:click="update">Guardar</button>
+                        <!-- <a href="{{route('ticketDocument', $ticket)}}"  target="_blank" class="btn btn-secondary mt-2">Imprimir</a> -->
                     </div>
                 </div>
                 {{-- ./formulario para editar ticket --}}
             </div>
         </div>
     </div>
-@push('custom-scripts')
+    @push('custom-scripts')
     <script>
         document.addEventListener('scrollingBottom', function() {
             var offsetHeight = document.getElementById('body-messages').scrollHeight;
             document.getElementById("body-messages").scrollTop = offsetHeight
         })
     </script>
-@endpush
+    @endpush
 </div>

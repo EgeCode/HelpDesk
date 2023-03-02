@@ -9,11 +9,14 @@ use App\Models\Ticket;
 use App\Models\Seguimiento;
 use App\Models\User;
 use App\Models\Categoria;
+use App\Models\departamento;
+use App\Models\edificio;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Livewire\WithFileUploads;
+
 
 class TicketEdit extends Component
 {
@@ -44,6 +47,8 @@ class TicketEdit extends Component
     public $seguimientos = [];
     public $message = "";
 
+    public $comentarios_print ="";
+
     public function mount()
     {
 
@@ -69,6 +74,7 @@ class TicketEdit extends Component
         $this->prioridad = $this->ticketEdit->prioridad;
         $this->status = $this->ticketEdit->status;
         $this->creador = $this->ticketEdit->creadorName;
+        $this->comentarios_print = $this->ticketEdit->comentarios_print;
     }
 
     public function render()
@@ -76,6 +82,8 @@ class TicketEdit extends Component
         //Carga de selects
         $this->usuarios = User::orderBy('name')->get();
         $this->categorias = Categoria::orderBy('name')->get();
+        $departamentos = departamento::orderBy('nombre')->get();
+        $edificios = edificio::orderBy('nombre')->get();
 
         //Renderizamos los seguimientos para que cada que ingresmos uno nuevo se muestre al momento
         $this->seguimientos = Seguimiento::leftJoin('users', 'users.id', 'seguimientos.usuario')
@@ -86,7 +94,7 @@ class TicketEdit extends Component
         //Renderizamos el estado del ticket para que cambie cada vez que yo efectue un cambio 
         $this->status = $this->ticketEdit->status;
 
-        return view('livewire.ticket-edit');
+        return view('livewire.ticket-edit', compact('departamentos', 'edificios'));
     }
 
     public function update()
@@ -115,53 +123,53 @@ class TicketEdit extends Component
         $this->ticketEdit->categoria = $this->categoria;
         $this->ticketEdit->asignado = ($this->asignado != "") ? $this->asignado : null;
         $this->ticketEdit->prioridad = $this->prioridad;
+        $this->ticketEdit->comentarios_print = $this->comentarios_print;
         $this->ticketEdit->save();
 
+        // if ($enviarCorreo) {
 
-        if ($enviarCorreo) {
-
-           //obtenemos la ultima fecha de creacion
-           $date_created = Seguimiento::where('ticket', $this->ticketEdit->id)
-                                        ->max('created_at','DESC');
+        //    //obtenemos la ultima fecha de creacion
+        //    $date_created = Seguimiento::where('ticket', $this->ticketEdit->id)
+        //                                 ->max('created_at','DESC');
             
-            //obtenemos los registros de los ultimos cambios efectuados
-            $seguimientos = Seguimiento::where('created_at',$date_created)->get();
+        //     //obtenemos los registros de los ultimos cambios efectuados
+        //     $seguimientos = Seguimiento::where('created_at',$date_created)->get();
 
-            //Seteamos datos del ticket
-            $details['tipo'] = 'update';
-            $details['user'] = Auth::user()->name . ' ' . Auth::user()->lastname;
-            $details['creator'] = $this->creador;
-            $details['header'] = '#' . $this->ticketEdit->id . ' ' . $this->ticketEdit->tema;
-            $details['descripcion'] = $this->ticketEdit->descripcion;
-            $details['cambios'] =   $seguimientos;  
-            $details['prioridad'] = $this->ticketEdit->prioridad;
-            $details['asignado'] = 'Sin asignar';
+        //     //Seteamos datos del ticket
+        //     $details['tipo'] = 'update';
+        //     $details['user'] = Auth::user()->name . ' ' . Auth::user()->lastname;
+        //     $details['creator'] = $this->creador;
+        //     $details['header'] = '#' . $this->ticketEdit->id . ' ' . $this->ticketEdit->tema;
+        //     $details['descripcion'] = $this->ticketEdit->descripcion;
+        //     $details['cambios'] =   $seguimientos;  
+        //     $details['prioridad'] = $this->ticketEdit->prioridad;
+        //     $details['asignado'] = 'Sin asignar';
 
-            //Validamos si se ha asignado a alguien 
-            if ($this->ticketEdit->asignado != null) {
+        //     //Validamos si se ha asignado a alguien 
+        //     if ($this->ticketEdit->asignado != null) {
                 
-                $asignado = User::find($this->ticketEdit->asignado);
+        //         $asignado = User::find($this->ticketEdit->asignado);
                 
-                //verificamos que tenga registrado un correo
-                if ($asignado->email != null) {
+        //         //verificamos que tenga registrado un correo
+        //         if ($asignado->email != null) {
 
-                    $details['asignado'] = $asignado->name . ' ' . $asignado->lastname;
-                    $details['email'] = $asignado->email;
-                    dispatch(new ProccessEmail($details));
-                }
-            } 
+        //             $details['asignado'] = $asignado->name . ' ' . $asignado->lastname;
+        //             $details['email'] = $asignado->email;
+        //             dispatch(new ProccessEmail($details));
+        //         }
+        //     } 
 
-            //
-            //Despues mandamos email a todos los usuarios que tienen activada la opcion de 
-            //recibir notificaciones de todos los tickets.
-            $usersSend = User::permission('Recibir notificación de todos los tickets')->get();
+        //     //
+        //     //Despues mandamos email a todos los usuarios que tienen activada la opcion de 
+        //     //recibir notificaciones de todos los tickets.
+        //     $usersSend = User::permission('Recibir notificación de todos los tickets')->get();
 
-            foreach ($usersSend as $item) {
-                $details['email'] = $item->email;
-                dispatch(new ProccessEmail($details));
-            }
+        //     foreach ($usersSend as $item) {
+        //         $details['email'] = $item->email;
+        //         dispatch(new ProccessEmail($details));
+        //     }
             
-        }
+        // }
 
 
         $this->dispatchBrowserEvent('alerta', ['msg' => 'Cambios guardados!!']);
@@ -184,6 +192,7 @@ class TicketEdit extends Component
                 $seguimiento->notas = $this->message;
                 $seguimiento->ticket = $this->ticket;
                 $seguimiento->usuario = Auth::user()->id;
+                $seguimiento->print = 1;
                 $seguimiento->save();
             }
 
@@ -216,5 +225,10 @@ class TicketEdit extends Component
     public function clearAtt()
     {
         $this->archivoAdjunto = null;
+    }
+
+    public function verDocumento(){
+
+        return redirect(route('ticketDocument',$this->ticket));
     }
 }

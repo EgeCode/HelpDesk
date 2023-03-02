@@ -1,19 +1,19 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <a class="navbar-brand" href="#">ASR</a>
+  <a class="navbar-brand" href="{{route('welcome')}}">{{env('APP_NAME')}}</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
+      <li class="nav-item @if(Route::is('welcome')) active @endif">
         <a class="nav-link" href="{{route('welcome')}}">Inicio <span class="sr-only">(current)</span></a>
       </li>
-      <li class="nav-item">
+      <li class="nav-item @if(Route::is('tickets')) active @endif"">
         <a class="nav-link" href="{{route('tickets')}}">Tickets</a>
       </li>
 
-      <li class="nav-item dropdown">
+      <li class="nav-item dropdown @if(Route::is('usuarios') || Route::is('catalogos')) active @endif"">
         <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-expanded="false">
           Administración
         </a>
@@ -21,7 +21,10 @@
           @can('Seccion usuarios')
           <a class="dropdown-item" href="{{route('usuarios')}}">Usuarios</a>
           @endcan
+
+          @can('Catalogos')
           <a class="dropdown-item" href="{{route('catalogos')}}">Catálogos</a>
+          @endcan
         </div>
       </li>
     </ul>

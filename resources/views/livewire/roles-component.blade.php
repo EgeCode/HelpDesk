@@ -4,6 +4,19 @@
     use Carbon\Carbon; ?>
     <div class="container">
         <div class="row">
+
+            <div class="col-lg-9 mx-auto">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{route('usuarios')}}">Usuarios</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Permisos</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row">
+
             <div class="col-lg-9 mx-auto">
                 <div class="card">
                     <div class="card-header  bg-secondary text-white">
@@ -16,7 +29,7 @@
                         <div><strong>Ultima actualización: </strong>{{Carbon::parse($user->updated_at)->diffForHumans() }}</div>
                         <hr>
                         <h6>Permisos de usuario</h6>
-                        
+
                         @foreach($permisos as $item)
                         <div class="form-check">
                             <label class="form-check-label" for="chk{{$item->id}}">
