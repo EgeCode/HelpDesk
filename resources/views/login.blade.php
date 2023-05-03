@@ -16,7 +16,7 @@
     <div class="row mt-5">
       <div class="col-lg-4 mx-auto">
         <div class="card">
-          <div class="card-header text-center" style="font-size: 13px; color:#012E69"><strong>Sistema Administración de Servicios de Red</strong></div>
+          <div class="card-header text-center" style="font-size: 13px; color:#012E69"><strong>HelpDesk</strong></div>
           <div class="text-center mt-3">
             <img src="{{asset('img') }}/logo.png" class="card-img-top" alt="Logo" style="height:104px;width:104px;">
           </div>
